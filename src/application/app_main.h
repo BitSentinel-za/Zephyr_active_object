@@ -11,6 +11,9 @@ class app_main : public control_thread
                  uint32_t priority, 
                  uint32_t stack_size, 
                  Event* event): control_thread(name, priority, stack_size, event){}
+
+        void init();
+
     protected:
 
     private:

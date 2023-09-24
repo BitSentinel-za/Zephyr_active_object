@@ -44,6 +44,7 @@ protected:
 
 private:
 
+  void wait(void);
   static void task_fn(void* obj, void*, void*) 
   {
       reinterpret_cast<control_thread*>(obj)->run();

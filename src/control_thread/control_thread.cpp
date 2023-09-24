@@ -18,7 +18,7 @@ control_thread::control_thread(char* name, uint32_t priority,
                            K_THREAD_STACK_SIZEOF(threadStack),
                            control_thread::task_fn,
                            this, NULL, NULL,
-                           PRIORITY, 0, K_NO_WAIT);
+                           priority/*PRIORITY*/, 0, K_NO_WAIT);
 }
 
 
@@ -58,4 +58,9 @@ void control_thread::Subscribe(const char* event_name)
 void control_thread::register_event(const char* event_name)
 {
   m_event->register_event(event_name, &m_queue);
+}
+
+void control_thread::wait()
+{
+	k_thread_join(&my_thread_data, K_FOREVER);
 }
