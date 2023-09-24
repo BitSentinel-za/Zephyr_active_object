@@ -13,19 +13,11 @@ class app_main : public control_thread
                  Event* event): control_thread(name, priority, stack_size, event){}
 
         void init();
+        void run(); 
 
     protected:
 
     private:
-        void run() override 
-        {
-            while (1) 
-            {
-                // task code goes here
-
-            }
-        }
-
 
 };
 
