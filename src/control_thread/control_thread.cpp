@@ -1,9 +1,18 @@
-#include "control_thread.h"
 #include <bits/stdc++.h>
+#include "control_thread.h"
 
 K_THREAD_STACK_DEFINE(threadStack, STACK_SIZE);
 
-control_thread::control_thread(char* name, uint32_t priority, uint32_t stack_size)
+/**
+ * @brief Construct a new control thread::control thread object
+ * 
+ * @param name 
+ * @param priority 
+ * @param stack_size
+ * @param Events 
+ */
+control_thread::control_thread(char* name, uint32_t priority, 
+                               uint32_t stack_size, Event* event):m_event{event}
 {
    m_tid = k_thread_create(&my_thread_data, threadStack,
                            K_THREAD_STACK_SIZEOF(threadStack),
@@ -12,27 +21,41 @@ control_thread::control_thread(char* name, uint32_t priority, uint32_t stack_siz
                            PRIORITY, 0, K_NO_WAIT);
 }
 
-void control_thread::PostEvent(uint32_t event) 
+
+/**
+ * @brief 
+ * 
+ * @param event 
+ */
+void control_thread::PostEvent(void* event) 
 {
-  k_msgq_put(&m_queue_, &event, K_FOREVER);
+  for (auto i: subscribers_array)
+  {
+    k_msgq_put(i, event, K_FOREVER);
+  }
 }
 
-void control_thread::Subscribe(const char* event_name, void (*callback)(void)) 
-{
-    // Find the index of the event name in the subscribers_array_ array
-    uint32_t index = std::find(event_names_.begin(), 
-                               event_names_.end(), 
-                               event_name) - event_names_.begin();
 
-    // If the event name is not found, create a new entry for it
-    if (index == event_names_.size()) 
-    {
-      event_names_.push_back(event_name);
-      subscribers_array_[index] = callback;
-    } 
-    else 
-    {
-      // Update the subscriber callback for the existing event name
-      subscribers_array_[index] = callback;
-    }
+/**
+ * @brief 
+ * 
+ * @param event_name 
+ */
+void control_thread::Subscribe(const char* event_name) 
+{
+  auto evt = m_event->get_event(event_name);
+
+  if (evt == nullptr)
+  {
+    //TODO: cause exception
+  }
+  else
+  {
+    subscribers_array[m_index++] = evt;
+  }
+}
+
+void control_thread::register_event(const char* event_name)
+{
+  m_event->register_event(event_name, &m_queue);
 }
